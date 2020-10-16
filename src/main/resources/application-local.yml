@@ -1,0 +1,7 @@
+spring:
+  kafka:
+    bootstrapAddress: localhost:9092
+    topic: votingEventTopic
+    enabled: true
+userInfoService:
+  url: https://user-info.herokuapp.com/users

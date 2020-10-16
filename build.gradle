@@ -1,0 +1,69 @@
+buildscript {
+    ext {
+        mapstructVersion = '1.4.1.Final'
+        javaxValidationVersion = '2.0.1.Final'
+        springDocVersion = '1.2.32'
+    }
+}
+
+plugins {
+    id 'org.springframework.boot' version '2.3.4.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'java'
+}
+
+group = 'com.subjects'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+apply plugin: 'checkstyle'
+apply plugin: 'pmd'
+
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.springframework.boot:spring-boot-starter-data-mongodb"
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.boot:spring-boot-starter-validation"
+    implementation "org.springframework.kafka:spring-kafka"
+    implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+    implementation "org.springdoc:springdoc-openapi-ui:${springDocVersion}"
+    compileOnly "org.projectlombok:lombok"
+    annotationProcessor "org.projectlombok:lombok"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "io.projectreactor:reactor-test"
+    testImplementation "org.springframework.kafka:spring-kafka-test"
+}
+
+compileJava {
+    options.with {
+        compilerArgs += '-Amapstruct.defaultComponentModel=spring'
+        compilerArgs += '-Amapstruct.unmappedTargetPolicy=IGNORE'
+    }
+}
+
+checkstyle {
+    toolVersion '8.36.2'
+    ignoreFailures = false
+    maxWarnings = 0
+    configFile file("config/checkstyle/checkstyle.xml")
+}
+
+pmd {
+    toolVersion '6.28.0'
+    ignoreFailures = false
+}
+
+test {
+    useJUnitPlatform()
+}

@@ -1,0 +1,21 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: voting-service
+  profiles:
+    active: local
+mongo:
+  database:
+    name: voting
+management:
+  endpoints:
+    web:
+      base-path: /api/voting-service/actuator
+springdoc:
+  swagger-ui:
+    path: /api/voting-service/swagger-ui.html
+  api-docs:
+    path: /swagger
+  packageToScan: com.subjects.votingservice.controller
+  pathsToMatch: /api/voting-service/v1/**
