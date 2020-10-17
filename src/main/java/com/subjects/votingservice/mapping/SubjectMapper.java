@@ -2,13 +2,13 @@ package com.subjects.votingservice.mapping;
 
 import com.subjects.votingservice.model.Subject;
 import com.subjects.votingservice.shared.dto.subject.SubjectDto;
-import com.subjects.votingservice.util.Utils;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Subject mapper.
@@ -50,7 +50,7 @@ public interface SubjectMapper {
     @AfterMapping
     default Subject updateSubjectCode(SubjectDto subjectDto, @MappingTarget Subject subject) {
         if (StringUtils.isBlank(subject.getCode())) {
-            subject.setCode(Utils.generateCode(subject.getTitle()));
+            subject.setCode(UUID.randomUUID().toString());
         }
         return subject;
     }

@@ -1,5 +1,6 @@
 package com.subjects.votingservice.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
@@ -14,6 +15,7 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 @Document
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @CompoundIndex(name = "associate_session_index", def = "{'associate.id' : 1, 'session.id': 1}", unique = true)
 @Validated

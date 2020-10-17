@@ -1,7 +1,9 @@
 package com.subjects.votingservice.service;
 
-import com.subjects.votingservice.exception.NotFoundException;
+import com.subjects.votingservice.exception.InvalidDateTimeException;
 import com.subjects.votingservice.exception.SessionAlreadyOpenException;
+import com.subjects.votingservice.exception.SubjectNotFoundException;
+import com.subjects.votingservice.exception.VotingSessionNotFoundException;
 import com.subjects.votingservice.mapping.VotingSessionMapper;
 import com.subjects.votingservice.model.Subject;
 import com.subjects.votingservice.model.VotingSession;
@@ -91,14 +93,25 @@ public class VotingSessionServiceImplTest {
     }
 
     /**
-     * Save should throw not found exception when session subject is not found.
+     * Save should throw subject not found exception when session subject is not found.
      */
-    @Test(expected = NotFoundException.class)
-    public void saveShouldThrowNotFoundExceptionWhenSessionSubjectIsNotFound() {
+    @Test(expected = SubjectNotFoundException.class)
+    public void saveShouldThrowSubjectNotFoundExceptionWhenSessionSubjectIsNotFound() {
         final VotingSessionRequestDto votingSessionRequestDto = buildVotingSessionRequestDto();
         Mockito.when(votingSessionRepository.existsBySubjectCode(votingSessionRequestDto.getSubjectCode())).thenReturn(false);
         Mockito.when(votingSessionMapper.votingSessionRequestDtoToVotingSession(votingSessionRequestDto)).thenReturn(buildVotingSession());
-        Mockito.when(subjectRepository.findOneByCode(votingSessionRequestDto.getSubjectCode())).thenThrow(NotFoundException.class);
+        Mockito.when(subjectRepository.findOneByCode(votingSessionRequestDto.getSubjectCode())).thenThrow(SubjectNotFoundException.class);
+        votingSessionServiceImpl.save(votingSessionRequestDto);
+    }
+
+    /**
+     * Save should throw invalid date time exception when session expiration date is not valid.
+     */
+    @Test(expected = InvalidDateTimeException.class)
+    public void saveShouldThrowInvalidDateTimeExceptionWhenSessionExpirationDateIsNotValid() {
+        final VotingSessionRequestDto votingSessionRequestDto = buildVotingSessionRequestDto();
+        Mockito.when(votingSessionRepository.existsBySubjectCode(votingSessionRequestDto.getSubjectCode())).thenReturn(false);
+        Mockito.when(votingSessionMapper.votingSessionRequestDtoToVotingSession(votingSessionRequestDto)).thenThrow(InvalidDateTimeException.class);
         votingSessionServiceImpl.save(votingSessionRequestDto);
     }
 
@@ -117,11 +130,11 @@ public class VotingSessionServiceImplTest {
     }
 
     /**
-     * Find by subject code should throw not found exception when voting session is not found.
+     * Find by subject code should throw voting session not found exception when voting session is not found.
      */
-    @Test(expected = NotFoundException.class)
-    public void findBySubjectCodeShouldThrowNotFoundExceptionWhenVotingSessionIsNotFound() {
-        Mockito.when(votingSessionRepository.findOneBySubjectCode(CODE)).thenThrow(NotFoundException.class);
+    @Test(expected = VotingSessionNotFoundException.class)
+    public void findBySubjectCodeShouldThrowVotingSessionNotFoundExceptionWhenVotingSessionIsNotFound() {
+        Mockito.when(votingSessionRepository.findOneBySubjectCode(CODE)).thenThrow(VotingSessionNotFoundException.class);
         votingSessionServiceImpl.findBySubjectCode(CODE);
     }
 

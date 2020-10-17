@@ -22,11 +22,7 @@ public final class VoteHelper {
      * @return new instance of {@link Vote}
      */
     public static Vote buildVote() {
-        final Vote vote = new Vote();
-        vote.setSession(buildVotingSession());
-        vote.setAssociate(buildAssociate());
-        vote.setOption(true);
-        return vote;
+        return new Vote(buildAssociate(), buildVotingSession(), true);
     }
 
     /**

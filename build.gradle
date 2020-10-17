@@ -1,7 +1,6 @@
 buildscript {
     ext {
         mapstructVersion = '1.4.1.Final'
-        javaxValidationVersion = '2.0.1.Final'
         springDocVersion = '1.2.32'
     }
 }
@@ -13,7 +12,7 @@ plugins {
 }
 
 group = 'com.subjects'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.0'
 sourceCompatibility = '11'
 
 configurations {
@@ -41,8 +40,6 @@ dependencies {
     compileOnly "org.projectlombok:lombok"
     annotationProcessor "org.projectlombok:lombok"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
-    testImplementation "io.projectreactor:reactor-test"
-    testImplementation "org.springframework.kafka:spring-kafka-test"
 }
 
 compileJava {

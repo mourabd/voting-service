@@ -1,6 +1,7 @@
 package com.subjects.votingservice.service.impl;
 
-import com.subjects.votingservice.exception.NotFoundException;
+import com.subjects.votingservice.exception.SubjectCodeAlreadyRegisteredException;
+import com.subjects.votingservice.exception.SubjectNotFoundException;
 import com.subjects.votingservice.mapping.SubjectMapper;
 import com.subjects.votingservice.model.Subject;
 import com.subjects.votingservice.repository.SubjectRepository;
@@ -8,6 +9,7 @@ import com.subjects.votingservice.service.SubjectService;
 import com.subjects.votingservice.shared.dto.subject.SubjectDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,10 @@ public class SubjectServiceImpl implements SubjectService {
      */
     @Override
     public SubjectDto save(SubjectDto subjectDto) {
+        if (isSubjectCodeAlreadyRegistered(subjectDto.getCode())) {
+            log.error("Subject code already registered at database.");
+            throw new SubjectCodeAlreadyRegisteredException();
+        }
         log.info("Saving subject from subject data transfer object {}", subjectDto);
         final Subject subject = subjectMapper.subjectDtoToSubject(subjectDto);
         final SubjectDto savedSubjectDto = subjectMapper.subjectToSubjectDto(subjectRepository.save(subject));
@@ -42,7 +48,7 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public SubjectDto findByCode(String code) {
         log.info("Searching subject by code {}", code);
-        final Subject subject = subjectRepository.findOneByCode(code).orElseThrow(NotFoundException::new);
+        final Subject subject = subjectRepository.findOneByCode(code).orElseThrow(SubjectNotFoundException::new);
         final SubjectDto subjectDto = subjectMapper.subjectToSubjectDto(subject);
         log.info("Subject {} was found.", subject);
         return subjectDto;
@@ -58,5 +64,9 @@ public class SubjectServiceImpl implements SubjectService {
         final List<SubjectDto> subjectDtoList = subjectMapper.subjectListToSubjectDtoList(subjects);
         log.info("Number of subjects retrieved: {}", subjects.size());
         return subjectDtoList;
+    }
+
+    private boolean isSubjectCodeAlreadyRegistered(String code) {
+        return StringUtils.isNotBlank(code) && subjectRepository.existsByCode(code);
     }
 }

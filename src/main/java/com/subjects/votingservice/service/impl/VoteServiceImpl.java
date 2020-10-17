@@ -2,9 +2,10 @@ package com.subjects.votingservice.service.impl;
 
 import com.subjects.votingservice.configuration.properties.KafkaConfigurationProperties;
 import com.subjects.votingservice.exception.AssociateAlreadyVotedException;
+import com.subjects.votingservice.exception.AssociateNotFoundException;
 import com.subjects.votingservice.exception.AssociateUnableToVoteException;
-import com.subjects.votingservice.exception.NotFoundException;
 import com.subjects.votingservice.exception.SessionExpiredException;
+import com.subjects.votingservice.exception.VotingSessionNotFoundException;
 import com.subjects.votingservice.integration.UserInfoService;
 import com.subjects.votingservice.integration.dto.UserInfoResponseDto;
 import com.subjects.votingservice.mapping.VoteMapper;
@@ -24,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -60,7 +62,9 @@ public class VoteServiceImpl implements VoteService {
      */
     @Override
     public VoteResponseDto save(VoteRequestDto voteRequestDto) {
-        final Vote vote = buildVote(voteRequestDto);
+        final Associate associate = getValidatedAssociate(voteRequestDto);
+        final VotingSession votingSession = getValidatedVotingSession(voteRequestDto);
+        final Vote vote = new Vote(associate, votingSession, voteRequestDto.getOption());
         log.info("Saving vote from vote request data transfer object {}", voteRequestDto);
         final VoteResponseDto savedVoteResponseDto = voteMapper.voteToVoteResponseDto(voteRepository.save(vote));
         log.info("Vote {} was saved.", vote);
@@ -73,19 +77,9 @@ public class VoteServiceImpl implements VoteService {
     @Override
     public VotingSessionResultDto findVotingSessionResultsBySubjectCode(String subjectCode) {
         log.info("Searching voting session result by subject code {}", subjectCode);
-        final VotingSession votingSession = votingSessionRepository.findOneBySubjectCode(subjectCode).orElseThrow(NotFoundException::new);
+        final VotingSession votingSession = votingSessionRepository.findOneBySubjectCode(subjectCode).orElseThrow(VotingSessionNotFoundException::new);
         final List<Vote> votes = voteRepository.findBySessionSubjectCode(subjectCode);
-        final Map<Boolean, Long> countingVotesMap = votes.stream()
-            .map(Vote::getOption)
-            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-
-        final VotingSessionResultDto votingSessionResultDto = VotingSessionResultDto.builder()
-            .session(votingSessionMapper.votingSessionToVotingSessionResponseDto(votingSession))
-            .resultDto(VotingSessionResultDto.ResultDto.builder()
-                .yes(Optional.ofNullable(countingVotesMap.get(Boolean.TRUE)).orElse(0L))
-                .no(Optional.ofNullable(countingVotesMap.get(Boolean.FALSE)).orElse(0L))
-                .build())
-            .build();
+        final VotingSessionResultDto votingSessionResultDto = buildVotingSessionResultDto(votingSession, votes);
 
         if (kafkaConfigurationProperties.isEnabled()
             && !votingSession.isNotified() && CLOSED.equals(votingSessionResultDto.getSession().getStatus())) {
@@ -98,43 +92,57 @@ public class VoteServiceImpl implements VoteService {
         return votingSessionResultDto;
     }
 
-    private Vote buildVote(VoteRequestDto voteRequestDto) {
-        validateAssociateVote(voteRequestDto);
-        log.info("Building vote entity from vote request data transfer object {}", voteRequestDto);
-        final Vote vote = voteMapper.voteRequestDtoToVote(voteRequestDto);
-        final VotingSession votingSession = votingSessionRepository.findOneBySubjectCode(voteRequestDto.getSubjectCode()).orElseThrow(NotFoundException::new);
-        if (isVotingSessionActive(votingSession.getExpirationDate())) {
-            log.error("Voting session has expired.");
-            throw new SessionExpiredException();
-        }
-        final Associate associate = associateRepository.findOneByCpf(voteRequestDto.getCpf()).orElseThrow(NotFoundException::new);
-        vote.setAssociate(associate);
-        vote.setSession(votingSession);
-        log.info("Entity vote was built {}", vote);
-        return vote;
+    private VotingSessionResultDto buildVotingSessionResultDto(VotingSession votingSession, List<Vote> votes) {
+        final Map<Boolean, Long> countingVotesMap = votes.stream()
+            .map(Vote::getOption)
+            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        return VotingSessionResultDto.builder()
+            .session(votingSessionMapper.votingSessionToVotingSessionResponseDto(votingSession))
+            .resultDto(VotingSessionResultDto.ResultDto.builder()
+                .yes(Optional.ofNullable(countingVotesMap.get(Boolean.TRUE)).orElse(0L))
+                .no(Optional.ofNullable(countingVotesMap.get(Boolean.FALSE)).orElse(0L))
+                .build())
+            .build();
     }
 
-    private void validateAssociateVote(VoteRequestDto voteRequestDto) {
-        if (!isAssociateAbleToVote(voteRequestDto.getCpf())) {
-            log.error("Associate with cpf {} is unable to vote", voteRequestDto.getCpf());
-            throw new AssociateUnableToVoteException();
-        }
+    private Associate getValidatedAssociate(VoteRequestDto voteRequestDto) {
+
+        final Associate associate = associateRepository.findOneByCpf(voteRequestDto.getCpf()).orElseThrow(AssociateNotFoundException::new);
 
         if (hasAssociateAlreadyVoted(voteRequestDto)) {
             log.error("Associate already voted");
             throw new AssociateAlreadyVotedException();
         }
+
+        if (!isAssociateAbleToVote(voteRequestDto.getCpf())) {
+            log.error("Associate with cpf {} is unable to vote", voteRequestDto.getCpf());
+            throw new AssociateUnableToVoteException();
+        }
+
+        return associate;
+    }
+
+    private VotingSession getValidatedVotingSession(VoteRequestDto voteRequestDto) {
+        final VotingSession votingSession = votingSessionRepository.findOneBySubjectCode(voteRequestDto.getSubjectCode()).orElseThrow(VotingSessionNotFoundException::new);
+        if (isVotingSessionActive(votingSession.getExpirationDate())) {
+            log.error("Voting session has expired.");
+            throw new SessionExpiredException();
+        }
+        return votingSession;
     }
 
     private boolean isAssociateAbleToVote(String cpf) {
-        final UserInfoResponseDto userInfoResponseDto = userInfoService.getUserInfo(cpf);
-        return ABLE_TO_VOTE.equals(userInfoResponseDto.getStatus());
+        try {
+            final UserInfoResponseDto userInfoResponseDto = userInfoService.getUserInfo(cpf);
+            return ABLE_TO_VOTE.equals(userInfoResponseDto.getStatus());
+        } catch (ResourceAccessException exception) {
+            log.error("Get User Info service is taking too long to respond. Enabling associate to vote.");
+            return true;
+        }
     }
 
     private boolean hasAssociateAlreadyVoted(VoteRequestDto voteRequestDto) {
-        final String cpf = voteRequestDto.getCpf();
-        final String subjectCode = voteRequestDto.getSubjectCode();
-        return voteRepository.existsByAssociateCpfAndSessionSubjectCode(cpf, subjectCode);
+        return voteRepository.existsByAssociateCpfAndSessionSubjectCode(voteRequestDto.getCpf(), voteRequestDto.getSubjectCode());
     }
 
     private boolean isVotingSessionActive(LocalDateTime expirationDate) {

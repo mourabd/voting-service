@@ -1,6 +1,7 @@
 package com.subjects.votingservice.service;
 
-import com.subjects.votingservice.exception.NotFoundException;
+import com.subjects.votingservice.exception.SubjectCodeAlreadyRegisteredException;
+import com.subjects.votingservice.exception.SubjectNotFoundException;
 import com.subjects.votingservice.mapping.SubjectMapper;
 import com.subjects.votingservice.model.Subject;
 import com.subjects.votingservice.repository.SubjectRepository;
@@ -67,6 +68,15 @@ public class SubjectServiceImplTest {
     }
 
     /**
+     * Save should throw subject code already registered exception when subject code is already registered.
+     */
+    @Test(expected = SubjectCodeAlreadyRegisteredException.class)
+    public void saveShouldThrowSubjectCodeAlreadyRegisteredExceptionWhenSubjectCodeIsAlreadyRegistered() {
+        Mockito.when(subjectRepository.existsByCode(CODE)).thenReturn(true);
+        subjectServiceImpl.save(buildSubjectDto());
+    }
+
+    /**
      * Find by code should return subject data transfer object when subject is found.
      */
     @Test
@@ -82,11 +92,11 @@ public class SubjectServiceImplTest {
     }
 
     /**
-     * Find by code should throw not found exception when subject is not found.
+     * Find by code should throw subject not found exception when subject is not found.
      */
-    @Test(expected = NotFoundException.class)
-    public void findByCodeShouldThrowNotFoundExceptionWhenSubjectIsNotFound() {
-        Mockito.when(subjectRepository.findOneByCode(CODE)).thenThrow(NotFoundException.class);
+    @Test(expected = SubjectNotFoundException.class)
+    public void findByCodeShouldThrowSubjectNotFoundExceptionWhenSubjectIsNotFound() {
+        Mockito.when(subjectRepository.findOneByCode(CODE)).thenThrow(SubjectNotFoundException.class);
         subjectServiceImpl.findByCode(CODE);
     }
 

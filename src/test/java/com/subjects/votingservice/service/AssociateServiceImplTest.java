@@ -1,7 +1,7 @@
 package com.subjects.votingservice.service;
 
 import com.subjects.votingservice.exception.AssociateAlreadyRegisteredException;
-import com.subjects.votingservice.exception.NotFoundException;
+import com.subjects.votingservice.exception.AssociateNotFoundException;
 import com.subjects.votingservice.mapping.AssociateMapper;
 import com.subjects.votingservice.model.Associate;
 import com.subjects.votingservice.repository.AssociateRepository;
@@ -94,11 +94,11 @@ public class AssociateServiceImplTest {
     }
 
     /**
-     * Find by cpf should throw not found exception when associate is not found.
+     * Find by cpf should throw associate not found exception when associate is not found.
      */
-    @Test(expected = NotFoundException.class)
-    public void findByCpfShouldThrowNotFoundExceptionWhenAssociateIsNotFound() {
-        Mockito.when(associateRepository.findOneByCpf(CPF)).thenThrow(NotFoundException.class);
+    @Test(expected = AssociateNotFoundException.class)
+    public void findByCpfShouldThrowAssociateNotFoundExceptionWhenAssociateIsNotFound() {
+        Mockito.when(associateRepository.findOneByCpf(CPF)).thenThrow(AssociateNotFoundException.class);
         associateServiceImpl.findByCpf(CPF);
     }
 

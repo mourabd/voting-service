@@ -1,4 +1,4 @@
-package com.subjects.votingservice.util;
+package com.subjects.votingservice.constants;
 
 /**
  * Class of constants.

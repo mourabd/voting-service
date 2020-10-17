@@ -77,9 +77,10 @@ public interface VotingSessionMapper {
     @AfterMapping
     default VotingSessionResponseDto updateStatus(VotingSession votingSession,
                                                   @MappingTarget VotingSessionResponseDto votingSessionResponseDto) {
-        final VotingSessionResponseDto.Status status = votingSession.getExpirationDate().isAfter(LocalDateTime.now())
-            ? VotingSessionResponseDto.Status.OPEN
-            : VotingSessionResponseDto.Status.CLOSED;
+        final VotingSessionResponseDto.Status status =
+            votingSession.getExpirationDate().isAfter(LocalDateTime.now())
+                ? VotingSessionResponseDto.Status.OPEN
+                : VotingSessionResponseDto.Status.CLOSED;
         votingSessionResponseDto.setStatus(status);
         return votingSessionResponseDto;
     }

@@ -13,6 +13,14 @@ import java.util.Optional;
 public interface SubjectRepository extends MongoRepository<Subject, String> {
 
     /**
+     * Checks if subject is found by code.
+     *
+     * @param code code
+     * @return {@code true} if subject is found by code, {@code false} otherwise
+     */
+    boolean existsByCode(String code);
+
+    /**
      * Finds subject by code.
      *
      * @param code code

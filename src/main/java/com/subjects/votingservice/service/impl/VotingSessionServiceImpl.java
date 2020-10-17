@@ -1,7 +1,8 @@
 package com.subjects.votingservice.service.impl;
 
-import com.subjects.votingservice.exception.NotFoundException;
 import com.subjects.votingservice.exception.SessionAlreadyOpenException;
+import com.subjects.votingservice.exception.SubjectNotFoundException;
+import com.subjects.votingservice.exception.VotingSessionNotFoundException;
 import com.subjects.votingservice.mapping.VotingSessionMapper;
 import com.subjects.votingservice.model.Subject;
 import com.subjects.votingservice.model.VotingSession;
@@ -41,7 +42,7 @@ public class VotingSessionServiceImpl implements VotingSessionService {
 
         log.info("Saving session from voting session request data transfer object {}", votingSessionRequestDto);
         final VotingSession votingSession = votingSessionMapper.votingSessionRequestDtoToVotingSession(votingSessionRequestDto);
-        final Subject subject = subjectRepository.findOneByCode(votingSessionRequestDto.getSubjectCode()).orElseThrow(NotFoundException::new);
+        final Subject subject = subjectRepository.findOneByCode(votingSessionRequestDto.getSubjectCode()).orElseThrow(SubjectNotFoundException::new);
         votingSession.setSubject(subject);
         final VotingSessionResponseDto savedVotingSessionResponseDto = votingSessionMapper.votingSessionToVotingSessionResponseDto(votingSessionRepository.save(votingSession));
         log.info("Voting session {} was saved.", votingSession);
@@ -54,7 +55,7 @@ public class VotingSessionServiceImpl implements VotingSessionService {
     @Override
     public VotingSessionResponseDto findBySubjectCode(String subjectCode) {
         log.info("Searching session by subject code {}", subjectCode);
-        final VotingSession votingSession = votingSessionRepository.findOneBySubjectCode(subjectCode).orElseThrow(NotFoundException::new);
+        final VotingSession votingSession = votingSessionRepository.findOneBySubjectCode(subjectCode).orElseThrow(VotingSessionNotFoundException::new);
         final VotingSessionResponseDto votingSessionResponseDto = votingSessionMapper.votingSessionToVotingSessionResponseDto(votingSession);
         log.info("Session {} was found.", votingSession);
         return votingSessionResponseDto;

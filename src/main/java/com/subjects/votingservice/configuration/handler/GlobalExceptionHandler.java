@@ -7,6 +7,7 @@ import com.subjects.votingservice.exception.InvalidDateTimeException;
 import com.subjects.votingservice.exception.NotFoundException;
 import com.subjects.votingservice.exception.SessionAlreadyOpenException;
 import com.subjects.votingservice.exception.SessionExpiredException;
+import com.subjects.votingservice.exception.SubjectCodeAlreadyRegisteredException;
 import com.subjects.votingservice.shared.dto.RestErrorResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -52,7 +53,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         final List<String> errors = new ArrayList<>();
         exception.getBindingResult().getFieldErrors()
             .forEach(error -> errors.add(error.getField() + ": " + error.getDefaultMessage()));
-        log.error(STANDARD_LOG_ERROR, HttpStatus.INTERNAL_SERVER_ERROR, invalidRequest + " " + errors);
+        log.error(STANDARD_LOG_ERROR, HttpStatus.BAD_REQUEST, invalidRequest + " " + errors);
         final RestErrorResponseDto restErrorResponseDto = new RestErrorResponseDto(HttpStatus.BAD_REQUEST, invalidRequest, errors);
         return handleExceptionInternal(exception, restErrorResponseDto, headers, restErrorResponseDto.getStatus(), request);
     }
@@ -74,7 +75,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         final String message = "Supported content types: ".concat(MediaType.toString(exception.getSupportedMediaTypes()));
         final RestErrorResponseDto restErrorResponseDto = new RestErrorResponseDto(HttpStatus.BAD_REQUEST, message);
-        log.error(STANDARD_LOG_ERROR, HttpStatus.INTERNAL_SERVER_ERROR, message);
+        log.error(STANDARD_LOG_ERROR, HttpStatus.UNSUPPORTED_MEDIA_TYPE, message);
         return handleExceptionInternal(exception, restErrorResponseDto, headers, restErrorResponseDto.getStatus(), request);
     }
 
@@ -98,7 +99,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             .append(" Supported methods are ");
         exception.getSupportedHttpMethods().forEach(allowedMethod -> builder.append(allowedMethod + " "));
         final String errorMessage = builder.toString();
-        log.error(STANDARD_LOG_ERROR, HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
+        log.error(STANDARD_LOG_ERROR, HttpStatus.METHOD_NOT_ALLOWED, errorMessage);
         final RestErrorResponseDto restErrorResponseDto = new RestErrorResponseDto(HttpStatus.METHOD_NOT_ALLOWED, errorMessage);
         return new ResponseEntity<>(restErrorResponseDto, restErrorResponseDto.getStatus());
     }
@@ -106,91 +107,78 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles associate already registered exception.
      *
-     * @param exception associate already registered exception
      * @return response entity containing error response
      */
     @ExceptionHandler(AssociateAlreadyRegisteredException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<RestErrorResponseDto> handleAssociateAlreadyRegistered(Exception exception) {
-        final String associateAlreadyRegistered = "Associate already registered";
-        log.error(STANDARD_LOG_ERROR, HttpStatus.BAD_REQUEST, associateAlreadyRegistered);
-        final RestErrorResponseDto restErrorResponseDto = new RestErrorResponseDto(HttpStatus.BAD_REQUEST, associateAlreadyRegistered);
-        return new ResponseEntity<>(restErrorResponseDto, restErrorResponseDto.getStatus());
+    public ResponseEntity<RestErrorResponseDto> handleAssociateAlreadyRegistered() {
+        return buildRestErrorResponseEntity(HttpStatus.BAD_REQUEST, "Associate already registered");
+    }
+
+    /**
+     * Handles subject code already registered exception.
+     *
+     * @return response entity containing error response
+     */
+    @ExceptionHandler(SubjectCodeAlreadyRegisteredException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<RestErrorResponseDto> handleAssociateSubjectCodeAlreadyRegistered() {
+        return buildRestErrorResponseEntity(HttpStatus.BAD_REQUEST, "Subject code already registered");
     }
 
     /**
      * Handles associate already voted exception.
      *
-     * @param exception associate already voted exception
      * @return response entity containing error response
      */
     @ExceptionHandler(AssociateAlreadyVotedException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<RestErrorResponseDto> handleAssociateAlreadyVoted(Exception exception) {
-        final String associateAlreadyVoted = "Associate already voted";
-        log.error(STANDARD_LOG_ERROR, HttpStatus.BAD_REQUEST, associateAlreadyVoted);
-        final RestErrorResponseDto restErrorResponseDto = new RestErrorResponseDto(HttpStatus.BAD_REQUEST, associateAlreadyVoted);
-        return new ResponseEntity<>(restErrorResponseDto, restErrorResponseDto.getStatus());
+    public ResponseEntity<RestErrorResponseDto> handleAssociateAlreadyVoted() {
+        return buildRestErrorResponseEntity(HttpStatus.BAD_REQUEST, "Associate already voted");
     }
 
     /**
      * Handles associate unable to vote exception.
      *
-     * @param exception associate unable to vote exception
      * @return response entity containing error response
      */
     @ExceptionHandler(AssociateUnableToVoteException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<RestErrorResponseDto> handleAssociateUnableToVote(Exception exception) {
-        final String associateUnableToVote = "Associate unable to vote";
-        log.error(STANDARD_LOG_ERROR, HttpStatus.BAD_REQUEST, associateUnableToVote);
-        final RestErrorResponseDto restErrorResponseDto = new RestErrorResponseDto(HttpStatus.BAD_REQUEST, associateUnableToVote);
-        return new ResponseEntity<>(restErrorResponseDto, restErrorResponseDto.getStatus());
+    public ResponseEntity<RestErrorResponseDto> handleAssociateUnableToVote() {
+        return buildRestErrorResponseEntity(HttpStatus.BAD_REQUEST, "Associate unable to vote");
     }
 
     /**
      * Handles invalid date time exception.
      *
-     * @param exception invalid date time exception
      * @return response entity containing error response
      */
     @ExceptionHandler(InvalidDateTimeException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<RestErrorResponseDto> handleInvalidDateTime(Exception exception) {
-        final String invalidDateTime = "Invalid date time";
-        log.error(STANDARD_LOG_ERROR, HttpStatus.BAD_REQUEST, invalidDateTime);
-        final RestErrorResponseDto restErrorResponseDto = new RestErrorResponseDto(HttpStatus.BAD_REQUEST, invalidDateTime);
-        return new ResponseEntity<>(restErrorResponseDto, restErrorResponseDto.getStatus());
+    public ResponseEntity<RestErrorResponseDto> handleInvalidDateTime() {
+        return buildRestErrorResponseEntity(HttpStatus.BAD_REQUEST, "Invalid date time");
     }
 
     /**
      * Handles session already open exception.
      *
-     * @param exception session already open exception
      * @return response entity containing error response
      */
     @ExceptionHandler(SessionAlreadyOpenException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<RestErrorResponseDto> handleSessionAlreadyOpen(Exception exception) {
-        final String sessionAlreadyOpen = "Session already open";
-        log.error(STANDARD_LOG_ERROR, HttpStatus.BAD_REQUEST, sessionAlreadyOpen);
-        final RestErrorResponseDto restErrorResponseDto = new RestErrorResponseDto(HttpStatus.BAD_REQUEST, sessionAlreadyOpen);
-        return new ResponseEntity<>(restErrorResponseDto, restErrorResponseDto.getStatus());
+    public ResponseEntity<RestErrorResponseDto> handleSessionAlreadyOpen() {
+        return buildRestErrorResponseEntity(HttpStatus.BAD_REQUEST, "Session cannot be open more than once");
     }
 
     /**
      * Handles session expired exception.
      *
-     * @param exception session expired exception
      * @return response entity containing error response
      */
     @ExceptionHandler(SessionExpiredException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<RestErrorResponseDto> handleSessionExpired(Exception exception) {
-        final String sessionExpired = "Voting session is expired";
-        log.error(STANDARD_LOG_ERROR, HttpStatus.BAD_REQUEST, sessionExpired);
-        final RestErrorResponseDto restErrorResponseDto = new RestErrorResponseDto(HttpStatus.BAD_REQUEST, sessionExpired);
-        return new ResponseEntity<>(restErrorResponseDto, restErrorResponseDto.getStatus());
+    public ResponseEntity<RestErrorResponseDto> handleSessionExpired() {
+        return buildRestErrorResponseEntity(HttpStatus.BAD_REQUEST, "Voting session is expired");
     }
 
     /**
@@ -202,9 +190,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<RestErrorResponseDto> handleNotFound(Exception exception) {
-        final String notFound = "Resource not found";
-        log.error(STANDARD_LOG_ERROR, HttpStatus.NOT_FOUND, notFound);
-        final RestErrorResponseDto restErrorResponseDto = new RestErrorResponseDto(HttpStatus.NOT_FOUND, notFound);
+        return buildRestErrorResponseEntity(HttpStatus.NOT_FOUND, exception.getMessage());
+    }
+
+    private ResponseEntity<RestErrorResponseDto> buildRestErrorResponseEntity(HttpStatus httpStatus, String errorMessage) {
+        log.error(STANDARD_LOG_ERROR, httpStatus, errorMessage);
+        final RestErrorResponseDto restErrorResponseDto = new RestErrorResponseDto(httpStatus, errorMessage);
         return new ResponseEntity<>(restErrorResponseDto, restErrorResponseDto.getStatus());
     }
 }

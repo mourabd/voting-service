@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
-import static com.subjects.votingservice.util.Constants.*;
+import static com.subjects.votingservice.constants.Constants.*;
 import static org.springdoc.core.Constants.POST_METHOD;
 
 /**

@@ -3,6 +3,7 @@ package com.subjects.votingservice.shared.dto.vote;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotNull;
  */
 @Schema(description = "Vote request data transfer object.")
 @Data
+@Validated
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class VoteRequestDto {
 

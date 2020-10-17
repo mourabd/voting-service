@@ -2,9 +2,10 @@ package com.subjects.votingservice.service;
 
 import com.subjects.votingservice.configuration.properties.KafkaConfigurationProperties;
 import com.subjects.votingservice.exception.AssociateAlreadyVotedException;
+import com.subjects.votingservice.exception.AssociateNotFoundException;
 import com.subjects.votingservice.exception.AssociateUnableToVoteException;
-import com.subjects.votingservice.exception.NotFoundException;
 import com.subjects.votingservice.exception.SessionExpiredException;
+import com.subjects.votingservice.exception.VotingSessionNotFoundException;
 import com.subjects.votingservice.integration.UserInfoService;
 import com.subjects.votingservice.mapping.VoteMapper;
 import com.subjects.votingservice.mapping.VotingSessionMapper;
@@ -43,6 +44,7 @@ import static com.subjects.votingservice.helper.VotingSessionHelper.buildVotingS
 import static com.subjects.votingservice.helper.VotingSessionHelper.buildVotingSessionResponseDto;
 import static com.subjects.votingservice.integration.dto.UserInfoResponseDto.StatusEnum.ABLE_TO_VOTE;
 import static com.subjects.votingservice.integration.dto.UserInfoResponseDto.StatusEnum.UNABLE_TO_VOTE;
+import static org.mockito.ArgumentMatchers.any;
 
 /**
  * Vote service implementation test.
@@ -95,9 +97,10 @@ public class VoteServiceImplTest {
     @Test(expected = AssociateUnableToVoteException.class)
     public void saveShouldThrowAssociateUnableToVoteExceptionWhenUserIsNotAbleToVote() {
         final VoteRequestDto voteRequestDto = buildVoteRequestDto();
+        Mockito.when(associateRepository.findOneByCpf(voteRequestDto.getCpf())).thenReturn(Optional.ofNullable(buildAssociate()));
+        Mockito.when(voteRepository.existsByAssociateCpfAndSessionSubjectCode(voteRequestDto.getCpf(), voteRequestDto.getSubjectCode())).thenReturn(false);
         Mockito.when(userInfoService.getUserInfo(CPF)).thenReturn(buildUserInfoResponseDto(UNABLE_TO_VOTE));
         voteServiceImpl.save(voteRequestDto);
-
     }
 
     /**
@@ -106,20 +109,21 @@ public class VoteServiceImplTest {
     @Test(expected = AssociateAlreadyVotedException.class)
     public void saveShouldThrowAssociateAlreadyVotedExceptionWhenAssociateHasVotedAlready() {
         final VoteRequestDto voteRequestDto = buildVoteRequestDto();
-        Mockito.when(userInfoService.getUserInfo(CPF)).thenReturn(buildUserInfoResponseDto(ABLE_TO_VOTE));
+        Mockito.when(associateRepository.findOneByCpf(voteRequestDto.getCpf())).thenReturn(Optional.ofNullable(buildAssociate()));
         Mockito.when(voteRepository.existsByAssociateCpfAndSessionSubjectCode(voteRequestDto.getCpf(), voteRequestDto.getSubjectCode())).thenReturn(true);
         voteServiceImpl.save(voteRequestDto);
     }
 
     /**
-     * Save should throw not found exception when voting session subject is not found.
+     * Save should throw voting session not found exception when voting session subject is not found.
      */
-    @Test(expected = NotFoundException.class)
-    public void saveShouldThrowNotFoundExceptionWhenVotingSessionSubjectIsNotFound() {
+    @Test(expected = VotingSessionNotFoundException.class)
+    public void saveShouldThrowVotingSessionNotFoundExceptionWhenVotingSessionSubjectIsNotFound() {
         final VoteRequestDto voteRequestDto = buildVoteRequestDto();
-        Mockito.when(userInfoService.getUserInfo(CPF)).thenReturn(buildUserInfoResponseDto(ABLE_TO_VOTE));
+        Mockito.when(associateRepository.findOneByCpf(voteRequestDto.getCpf())).thenReturn(Optional.ofNullable(buildAssociate()));
         Mockito.when(voteRepository.existsByAssociateCpfAndSessionSubjectCode(voteRequestDto.getCpf(), voteRequestDto.getSubjectCode())).thenReturn(false);
-        Mockito.when(votingSessionRepository.findOneBySubjectCode(voteRequestDto.getSubjectCode())).thenThrow(NotFoundException.class);
+        Mockito.when(userInfoService.getUserInfo(CPF)).thenReturn(buildUserInfoResponseDto(ABLE_TO_VOTE));
+        Mockito.when(votingSessionRepository.findOneBySubjectCode(voteRequestDto.getSubjectCode())).thenThrow(VotingSessionNotFoundException.class);
         voteServiceImpl.save(voteRequestDto);
     }
 
@@ -129,24 +133,21 @@ public class VoteServiceImplTest {
     @Test(expected = SessionExpiredException.class)
     public void saveShouldThrowSessionExpiredExceptionWhenVotingSessionHasExpired() {
         final VoteRequestDto voteRequestDto = buildVoteRequestDto();
-        Mockito.when(userInfoService.getUserInfo(CPF)).thenReturn(buildUserInfoResponseDto(ABLE_TO_VOTE));
+        final VotingSession votingSession = buildVotingSession();
+        Mockito.when(associateRepository.findOneByCpf(voteRequestDto.getCpf())).thenReturn(Optional.ofNullable(buildAssociate()));
         Mockito.when(voteRepository.existsByAssociateCpfAndSessionSubjectCode(voteRequestDto.getCpf(), voteRequestDto.getSubjectCode())).thenReturn(false);
-        Mockito.when(votingSessionRepository.findOneBySubjectCode(voteRequestDto.getSubjectCode())).thenReturn(Optional.ofNullable(buildVotingSession()));
+        Mockito.when(userInfoService.getUserInfo(CPF)).thenReturn(buildUserInfoResponseDto(ABLE_TO_VOTE));
+        Mockito.when(votingSessionRepository.findOneBySubjectCode(voteRequestDto.getSubjectCode())).thenReturn(Optional.ofNullable(votingSession));
         voteServiceImpl.save(voteRequestDto);
     }
 
     /**
-     * Save should throw not found exception when associate is not found.
+     * Save should throw associate not found exception when associate is not found.
      */
-    @Test(expected = NotFoundException.class)
-    public void saveShouldThrowNotFoundExceptionWhenAssociateIsNotFound() {
+    @Test(expected = AssociateNotFoundException.class)
+    public void saveShouldThrowAssociateNotFoundExceptionWhenAssociateIsNotFound() {
         final VoteRequestDto voteRequestDto = buildVoteRequestDto();
-        final VotingSession votingSession = buildVotingSession();
-        votingSession.setExpirationDate(LocalDateTime.now().plusMinutes(MINUTES));
-        Mockito.when(userInfoService.getUserInfo(CPF)).thenReturn(buildUserInfoResponseDto(ABLE_TO_VOTE));
-        Mockito.when(voteRepository.existsByAssociateCpfAndSessionSubjectCode(voteRequestDto.getCpf(), voteRequestDto.getSubjectCode())).thenReturn(false);
-        Mockito.when(votingSessionRepository.findOneBySubjectCode(voteRequestDto.getSubjectCode())).thenReturn(Optional.ofNullable(votingSession));
-        Mockito.when(associateRepository.findOneByCpf(voteRequestDto.getCpf())).thenThrow(NotFoundException.class);
+        Mockito.when(associateRepository.findOneByCpf(voteRequestDto.getCpf())).thenThrow(AssociateNotFoundException.class);
         voteServiceImpl.save(voteRequestDto);
     }
 
@@ -155,17 +156,17 @@ public class VoteServiceImplTest {
      */
     @Test
     public void saveShouldReturnVoteResponseDtoWhenVoteIsSaved() {
-        final VoteRequestDto voteRequestDto = buildVoteRequestDto();
-        final VotingSession votingSession = buildVotingSession();
-        final Vote vote = buildVote();
 
+        final VoteRequestDto voteRequestDto = buildVoteRequestDto();
+        final Vote vote = buildVote();
+        final VotingSession votingSession = buildVotingSession();
         votingSession.setExpirationDate(LocalDateTime.now().plusMinutes(MINUTES));
-        Mockito.when(userInfoService.getUserInfo(CPF)).thenReturn(buildUserInfoResponseDto(ABLE_TO_VOTE));
-        Mockito.when(voteRepository.existsByAssociateCpfAndSessionSubjectCode(voteRequestDto.getCpf(), voteRequestDto.getSubjectCode())).thenReturn(false);
-        Mockito.when(voteMapper.voteRequestDtoToVote(voteRequestDto)).thenReturn(vote);
-        Mockito.when(votingSessionRepository.findOneBySubjectCode(voteRequestDto.getSubjectCode())).thenReturn(Optional.ofNullable(votingSession));
+
         Mockito.when(associateRepository.findOneByCpf(voteRequestDto.getCpf())).thenReturn(Optional.ofNullable(buildAssociate()));
-        Mockito.when(voteRepository.save(vote)).thenReturn(vote);
+        Mockito.when(voteRepository.existsByAssociateCpfAndSessionSubjectCode(voteRequestDto.getCpf(), voteRequestDto.getSubjectCode())).thenReturn(false);
+        Mockito.when(userInfoService.getUserInfo(CPF)).thenReturn(buildUserInfoResponseDto(ABLE_TO_VOTE));
+        Mockito.when(votingSessionRepository.findOneBySubjectCode(voteRequestDto.getSubjectCode())).thenReturn(Optional.ofNullable(votingSession));
+        Mockito.when(voteRepository.save(any(Vote.class))).thenReturn(vote);
         Mockito.when(voteMapper.voteToVoteResponseDto(vote)).thenReturn(buildVoteResponseDto());
 
         final VoteResponseDto voteResponseDto = voteServiceImpl.save(voteRequestDto);
@@ -175,11 +176,11 @@ public class VoteServiceImplTest {
     }
 
     /**
-     * Find voting session results by subject code should throw not found exception when voting session is not found.
+     * Find voting session results by subject code should throw voting session not found exception when voting session is not found.
      */
-    @Test(expected = NotFoundException.class)
-    public void findVotingSessionResultsBySubjectCodeShouldThrowNotFoundExceptionVotingSessionIsNotFound() {
-        Mockito.when(votingSessionRepository.findOneBySubjectCode(CODE)).thenThrow(NotFoundException.class);
+    @Test(expected = VotingSessionNotFoundException.class)
+    public void findVotingSessionResultsBySubjectCodeShouldThrowVotingSessionNotFoundExceptionVotingSessionIsNotFound() {
+        Mockito.when(votingSessionRepository.findOneBySubjectCode(CODE)).thenThrow(VotingSessionNotFoundException.class);
         voteServiceImpl.findVotingSessionResultsBySubjectCode(CODE);
     }
 

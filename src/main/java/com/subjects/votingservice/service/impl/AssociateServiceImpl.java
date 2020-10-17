@@ -1,7 +1,7 @@
 package com.subjects.votingservice.service.impl;
 
 import com.subjects.votingservice.exception.AssociateAlreadyRegisteredException;
-import com.subjects.votingservice.exception.NotFoundException;
+import com.subjects.votingservice.exception.AssociateNotFoundException;
 import com.subjects.votingservice.mapping.AssociateMapper;
 import com.subjects.votingservice.model.Associate;
 import com.subjects.votingservice.repository.AssociateRepository;
@@ -48,7 +48,7 @@ public class AssociateServiceImpl implements AssociateService {
     @Override
     public AssociateResponseDto findByCpf(String cpf) {
         log.info("Searching associate by cpf {}", cpf);
-        final Associate associate = associateRepository.findOneByCpf(cpf).orElseThrow(NotFoundException::new);
+        final Associate associate = associateRepository.findOneByCpf(cpf).orElseThrow(AssociateNotFoundException::new);
         final AssociateResponseDto associateResponseDto = associateMapper.associateToAssociateResponseDto(associate);
         log.info("Associate {} was found.", associate);
         return associateResponseDto;

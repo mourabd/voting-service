@@ -28,7 +28,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 
-import static com.subjects.votingservice.util.Constants.*;
+import static com.subjects.votingservice.constants.Constants.*;
 import static org.springdoc.core.Constants.GET_METHOD;
 import static org.springdoc.core.Constants.POST_METHOD;
 
