@@ -1,4 +1,4 @@
-package com.subjects.votingservice.mapping;
+package com.subjects.votingservice.api.mapping;
 
 import com.subjects.votingservice.infrastructure.entities.Vote;
 import com.subjects.votingservice.api.dto.vote.VoteResponseDto;

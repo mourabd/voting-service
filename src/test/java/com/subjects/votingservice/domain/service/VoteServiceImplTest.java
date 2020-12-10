@@ -7,8 +7,8 @@ import com.subjects.votingservice.domain.exception.AssociateUnableToVoteExceptio
 import com.subjects.votingservice.domain.exception.SessionExpiredException;
 import com.subjects.votingservice.domain.exception.VotingSessionNotFoundException;
 import com.subjects.votingservice.infrastructure.integration.UserInfoService;
-import com.subjects.votingservice.mapping.VoteMapper;
-import com.subjects.votingservice.mapping.VotingSessionMapper;
+import com.subjects.votingservice.api.mapping.VoteMapper;
+import com.subjects.votingservice.api.mapping.VotingSessionMapper;
 import com.subjects.votingservice.infrastructure.entities.Vote;
 import com.subjects.votingservice.infrastructure.entities.VotingSession;
 import com.subjects.votingservice.infrastructure.repository.AssociateRepository;

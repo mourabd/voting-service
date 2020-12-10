@@ -1,7 +1,6 @@
 package com.subjects.votingservice.domain.service;
 
-import com.subjects.votingservice.api.dto.associate.AssociateRequestDto;
-import com.subjects.votingservice.api.dto.associate.AssociateResponseDto;
+import com.subjects.votingservice.domain.businessobjects.associate.AssociateBo;
 
 import java.util.List;
 
@@ -13,23 +12,23 @@ public interface AssociateService {
     /**
      * Saves an associate.
      *
-     * @param associateRequestDto {@link AssociateRequestDto} associate request data transfer object
-     * @return {@link AssociateResponseDto} associate response data transfer object
+     * @param associateBo {@link AssociateBo} associate business object
+     * @return {@link AssociateBo} associate business object
      */
-    AssociateResponseDto save(AssociateRequestDto associateRequestDto);
+    AssociateBo save(AssociateBo associateBo);
 
     /**
      * Searches associate by its cpf.
      *
      * @param cpf to be used to search associate
-     * @return {@link AssociateResponseDto} associate response data transfer object
+     * @return {@link AssociateBo} associate business object
      */
-    AssociateResponseDto findByCpf(String cpf);
+    AssociateBo findByCpf(String cpf);
 
     /**
      * Retrieves all associates.
      *
-     * @return {@link List} of {@link AssociateResponseDto} associate response data transfer object
+     * @return {@link List} of {@link AssociateBo} associate business object
      */
-    List<AssociateResponseDto> findAll();
+    List<AssociateBo> findAll();
 }

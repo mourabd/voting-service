@@ -1,15 +1,13 @@
 package com.subjects.votingservice.domain.service;
 
+import com.subjects.votingservice.domain.businessobjects.associate.AssociateBo;
 import com.subjects.votingservice.domain.exception.AssociateAlreadyRegisteredException;
 import com.subjects.votingservice.domain.exception.AssociateNotFoundException;
-import com.subjects.votingservice.mapping.AssociateMapper;
+import com.subjects.votingservice.domain.mapping.associate.AssociateMapper;
+import com.subjects.votingservice.domain.service.impl.AssociateServiceImpl;
 import com.subjects.votingservice.infrastructure.entities.Associate;
 import com.subjects.votingservice.infrastructure.repository.AssociateRepository;
-import com.subjects.votingservice.domain.service.impl.AssociateServiceImpl;
-import com.subjects.votingservice.api.dto.associate.AssociateRequestDto;
-import com.subjects.votingservice.api.dto.associate.AssociateResponseDto;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -17,8 +15,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.Sort;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,24 +28,14 @@ import static com.subjects.votingservice.helper.AssociateHelper.*;
 @RunWith(MockitoJUnitRunner.class)
 public class AssociateServiceImplTest {
 
-    private transient MockMvc mockMvc;
+    @Mock
+    private transient AssociateMapper associateMapper;
 
     @Mock
     private transient AssociateRepository associateRepository;
 
-    @Mock
-    private transient AssociateMapper associateMapper;
-
     @InjectMocks
     private transient AssociateServiceImpl associateServiceImpl;
-
-    /**
-     * Method setup.
-     */
-    @Before
-    public void setup() {
-        mockMvc = MockMvcBuilders.standaloneSetup(associateServiceImpl).build();
-    }
 
     /**
      * Save should return associate response data transfer object when associate is saved.
@@ -57,16 +43,16 @@ public class AssociateServiceImplTest {
     @Test
     public void saveShouldReturnAssociateResponseDtoWhenAssociateIsSaved() {
         final Associate associate = buildAssociate();
-        final AssociateRequestDto associateRequestDto = buildAssociateRequestDto();
+        final AssociateBo associateBo = buildAssociateBo();
         Mockito.when(associateRepository.existsByCpf(CPF)).thenReturn(false);
-        Mockito.when(associateMapper.associateRequestDtoToAssociate(associateRequestDto)).thenReturn(associate);
+        Mockito.when(associateMapper.map(associateBo)).thenReturn(associate);
         Mockito.when(associateRepository.save(associate)).thenReturn(associate);
-        Mockito.when(associateMapper.associateToAssociateResponseDto(associate)).thenReturn(buildAssociateResponseDto());
-        final AssociateResponseDto associateResponseDto = associateServiceImpl.save(associateRequestDto);
+        Mockito.when(associateMapper.map(associate)).thenReturn(associateBo);
+        final AssociateBo response = associateServiceImpl.save(associateBo);
 
-        Assert.assertEquals(CPF, associateResponseDto.getCpf());
-        Assert.assertEquals(FIRST_NAME, associateResponseDto.getFirstName());
-        Assert.assertEquals(LAST_NAME, associateResponseDto.getLastName());
+        Assert.assertEquals(CPF, response.getCpf());
+        Assert.assertEquals(FIRST_NAME, response.getFirstName());
+        Assert.assertEquals(LAST_NAME, response.getLastName());
     }
 
     /**
@@ -75,7 +61,7 @@ public class AssociateServiceImplTest {
     @Test(expected = AssociateAlreadyRegisteredException.class)
     public void saveShouldThrowAssociateAlreadyRegisteredExceptionWhenAssociateIsAlreadyRegistered() {
         Mockito.when(associateRepository.existsByCpf(CPF)).thenReturn(true);
-        associateServiceImpl.save(buildAssociateRequestDto());
+        associateServiceImpl.save(buildAssociateBo());
     }
 
     /**
@@ -85,12 +71,12 @@ public class AssociateServiceImplTest {
     public void findByCpfShouldReturnAssociateResponseDtoWhenAssociateIsFound() {
         final Associate associate = buildAssociate();
         Mockito.when(associateRepository.findOneByCpf(CPF)).thenReturn(Optional.ofNullable(associate));
-        Mockito.when(associateMapper.associateToAssociateResponseDto(associate)).thenReturn(buildAssociateResponseDto());
-        final AssociateResponseDto associateResponseDto = associateServiceImpl.findByCpf(CPF);
+        Mockito.when(associateMapper.map(associate)).thenReturn(buildAssociateBo());
+        final AssociateBo associateBo = associateServiceImpl.findByCpf(CPF);
 
-        Assert.assertEquals(CPF, associateResponseDto.getCpf());
-        Assert.assertEquals(FIRST_NAME, associateResponseDto.getFirstName());
-        Assert.assertEquals(LAST_NAME, associateResponseDto.getLastName());
+        Assert.assertEquals(CPF, associateBo.getCpf());
+        Assert.assertEquals(FIRST_NAME, associateBo.getFirstName());
+        Assert.assertEquals(LAST_NAME, associateBo.getLastName());
     }
 
     /**
@@ -109,8 +95,8 @@ public class AssociateServiceImplTest {
     public void findAllShouldReturnAssociateResponseDtoListWhenAnyAssociateIsFound() {
         final List<Associate> associates = Arrays.asList(buildAssociate());
         Mockito.when(associateRepository.findAll(Sort.by(Sort.Direction.ASC, "firstName", "lastName"))).thenReturn(associates);
-        Mockito.when(associateMapper.associatesToAssociateResponseDtoList(associates)).thenReturn(Arrays.asList(buildAssociateResponseDto()));
-        List<AssociateResponseDto> associateResponseDtoList = associateServiceImpl.findAll();
-        Assert.assertEquals(ASSOCIATE_LIST_ELEMENTS_NUMBER, associateResponseDtoList.size());
+        Mockito.when(associateMapper.map(associates)).thenReturn(Arrays.asList(buildAssociateBo()));
+        List<AssociateBo> associateBoList = associateServiceImpl.findAll();
+        Assert.assertEquals(ASSOCIATE_LIST_ELEMENTS_NUMBER, associateBoList.size());
     }
 }

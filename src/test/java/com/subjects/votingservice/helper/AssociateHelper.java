@@ -1,8 +1,9 @@
 package com.subjects.votingservice.helper;
 
-import com.subjects.votingservice.infrastructure.entities.Associate;
 import com.subjects.votingservice.api.dto.associate.AssociateRequestDto;
 import com.subjects.votingservice.api.dto.associate.AssociateResponseDto;
+import com.subjects.votingservice.domain.businessobjects.associate.AssociateBo;
+import com.subjects.votingservice.infrastructure.entities.Associate;
 
 /**
  * Associate helper class.
@@ -47,5 +48,18 @@ public final class AssociateHelper {
         associateResponseDto.setFirstName(FIRST_NAME);
         associateResponseDto.setLastName(LAST_NAME);
         return associateResponseDto;
+    }
+
+    /**
+     * Builds a new instance of associate business object.
+     *
+     * @return new instance of {@link AssociateBo}
+     */
+    public static AssociateBo buildAssociateBo() {
+        final AssociateBo associateBo = new AssociateBo();
+        associateBo.setCpf(CPF);
+        associateBo.setFirstName(FIRST_NAME);
+        associateBo.setLastName(LAST_NAME);
+        return associateBo;
     }
 }

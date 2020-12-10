@@ -4,7 +4,7 @@ import com.subjects.votingservice.domain.exception.InvalidDateTimeException;
 import com.subjects.votingservice.domain.exception.SessionAlreadyOpenException;
 import com.subjects.votingservice.domain.exception.SubjectNotFoundException;
 import com.subjects.votingservice.domain.exception.VotingSessionNotFoundException;
-import com.subjects.votingservice.mapping.VotingSessionMapper;
+import com.subjects.votingservice.api.mapping.VotingSessionMapper;
 import com.subjects.votingservice.infrastructure.entities.Subject;
 import com.subjects.votingservice.infrastructure.entities.VotingSession;
 import com.subjects.votingservice.infrastructure.repository.SubjectRepository;

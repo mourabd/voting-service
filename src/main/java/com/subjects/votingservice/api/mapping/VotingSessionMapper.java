@@ -1,4 +1,4 @@
-package com.subjects.votingservice.mapping;
+package com.subjects.votingservice.api.mapping;
 
 import com.subjects.votingservice.domain.exception.InvalidDateTimeException;
 import com.subjects.votingservice.infrastructure.entities.VotingSession;

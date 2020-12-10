@@ -1,18 +1,17 @@
 package com.subjects.votingservice.api.controller;
 
-import com.subjects.votingservice.domain.service.AssociateService;
 import com.subjects.votingservice.api.dto.associate.AssociateRequestDto;
 import com.subjects.votingservice.api.dto.associate.AssociateResponseDto;
+import com.subjects.votingservice.api.mapping.AssociateApiMapper;
+import com.subjects.votingservice.domain.businessobjects.associate.AssociateBo;
+import com.subjects.votingservice.domain.service.AssociateService;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +24,8 @@ import static com.subjects.votingservice.helper.AssociateHelper.*;
 @RunWith(MockitoJUnitRunner.class)
 public class AssociateControllerTest {
 
-    private transient MockMvc mockMvc;
+    @Mock
+    private transient AssociateApiMapper associateApiMapper;
 
     @Mock
     private transient AssociateService associateService;
@@ -34,19 +34,13 @@ public class AssociateControllerTest {
     private transient AssociateController associateController;
 
     /**
-     * Method setup.
-     */
-    @Before
-    public void setup() {
-        mockMvc = MockMvcBuilders.standaloneSetup(associateController).build();
-    }
-
-    /**
      * Find by cpf should return ok status when associate is found.
      */
     @Test
     public void findByCpfShouldReturnOkStatusWhenAssociateIsFound() {
-        Mockito.when(associateService.findByCpf(CPF)).thenReturn(buildAssociateResponseDto());
+        final AssociateBo associateBo = buildAssociateBo();
+        Mockito.when(associateService.findByCpf(CPF)).thenReturn(associateBo);
+        Mockito.when(associateApiMapper.map(associateBo)).thenReturn(buildAssociateResponseDto());
         final AssociateResponseDto associateResponseDto = associateController.findByCpf(CPF);
 
         Assert.assertEquals(CPF, associateResponseDto.getCpf());
@@ -59,7 +53,9 @@ public class AssociateControllerTest {
      */
     @Test
     public void findAllShouldReturnOkStatusWhenAssociateListIsReturned() {
-        Mockito.when(associateService.findAll()).thenReturn(Arrays.asList(buildAssociateResponseDto()));
+        final List<AssociateBo> associateBoList = Arrays.asList(buildAssociateBo());
+        Mockito.when(associateService.findAll()).thenReturn(associateBoList);
+        Mockito.when(associateApiMapper.map(associateBoList)).thenReturn(Arrays.asList(buildAssociateResponseDto()));
         final List<AssociateResponseDto> associateResponseDtos = associateController.findAll();
         Assert.assertEquals(ASSOCIATE_LIST_ELEMENTS_NUMBER, associateResponseDtos.size());
     }
@@ -70,7 +66,10 @@ public class AssociateControllerTest {
     @Test
     public void saveAssociateShouldReturnOkStatusWhenAssociateIsSaved() {
         final AssociateRequestDto associateRequestDto = buildAssociateRequestDto();
-        Mockito.when(associateService.save(associateRequestDto)).thenReturn(buildAssociateResponseDto());
+        final AssociateBo associateBo = buildAssociateBo();
+        Mockito.when(associateApiMapper.map(associateRequestDto)).thenReturn(associateBo);
+        Mockito.when(associateService.save(associateBo)).thenReturn(associateBo);
+        Mockito.when(associateApiMapper.map(associateBo)).thenReturn(buildAssociateResponseDto());
         final AssociateResponseDto associateResponseDto = associateController.saveAssociate(associateRequestDto);
 
         Assert.assertEquals(associateRequestDto.getCpf(), associateResponseDto.getCpf());

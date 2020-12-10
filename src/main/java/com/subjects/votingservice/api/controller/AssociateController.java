@@ -1,9 +1,11 @@
 package com.subjects.votingservice.api.controller;
 
-import com.subjects.votingservice.domain.service.AssociateService;
 import com.subjects.votingservice.api.dto.RestErrorResponseDto;
 import com.subjects.votingservice.api.dto.associate.AssociateRequestDto;
 import com.subjects.votingservice.api.dto.associate.AssociateResponseDto;
+import com.subjects.votingservice.api.mapping.AssociateApiMapper;
+import com.subjects.votingservice.domain.businessobjects.associate.AssociateBo;
+import com.subjects.votingservice.domain.service.AssociateService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -42,8 +44,7 @@ import static org.springdoc.core.Constants.POST_METHOD;
 @RequestMapping(path = "/api/voting-service/v1", produces = MediaType.APPLICATION_JSON_VALUE)
 public class AssociateController {
 
-    private static final String ASSOCIATE_RESPONSE_DTO_INFO_LOG = "Associate response data transfer object {}";
-
+    private final AssociateApiMapper associateApiMapper;
     private final AssociateService associateService;
 
     /**
@@ -73,9 +74,7 @@ public class AssociateController {
     @GetMapping(value = "/associate/{cpf}")
     public AssociateResponseDto findByCpf(@NotBlank(message = "CPF is required") @PathVariable("cpf") final String cpf) {
         log.info("Searching associate by cpf {}", cpf);
-        final AssociateResponseDto associateResponseDto = associateService.findByCpf(cpf);
-        log.info(ASSOCIATE_RESPONSE_DTO_INFO_LOG, associateResponseDto);
-        return associateResponseDto;
+        return associateApiMapper.map(associateService.findByCpf(cpf));
     }
 
     /**
@@ -98,9 +97,7 @@ public class AssociateController {
     @GetMapping(value = "/associate")
     public List<AssociateResponseDto> findAll() {
         log.info("Retrieving all associates");
-        final List<AssociateResponseDto> associateResponseDtoList = associateService.findAll();
-        log.info("Associate response data transfer object list {}", associateResponseDtoList);
-        return associateResponseDtoList;
+        return associateApiMapper.map(associateService.findAll());
     }
 
     /**
@@ -129,8 +126,7 @@ public class AssociateController {
     @PostMapping(value = "/associate")
     public AssociateResponseDto saveAssociate(@Valid @RequestBody AssociateRequestDto associateRequestDto) {
         log.info("Associate request data transfer object {}", associateRequestDto);
-        final AssociateResponseDto associateResponseDto = associateService.save(associateRequestDto);
-        log.info(ASSOCIATE_RESPONSE_DTO_INFO_LOG, associateResponseDto);
-        return associateResponseDto;
+        final AssociateBo associateBo = associateApiMapper.map(associateRequestDto);
+        return associateApiMapper.map(associateService.save(associateBo));
     }
 }

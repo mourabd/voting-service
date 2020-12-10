@@ -2,7 +2,7 @@ package com.subjects.votingservice.domain.service;
 
 import com.subjects.votingservice.domain.exception.SubjectCodeAlreadyRegisteredException;
 import com.subjects.votingservice.domain.exception.SubjectNotFoundException;
-import com.subjects.votingservice.mapping.SubjectMapper;
+import com.subjects.votingservice.api.mapping.SubjectMapper;
 import com.subjects.votingservice.infrastructure.entities.Subject;
 import com.subjects.votingservice.infrastructure.repository.SubjectRepository;
 import com.subjects.votingservice.domain.service.impl.SubjectServiceImpl;

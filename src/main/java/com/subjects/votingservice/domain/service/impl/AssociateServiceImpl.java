@@ -1,13 +1,12 @@
 package com.subjects.votingservice.domain.service.impl;
 
+import com.subjects.votingservice.domain.businessobjects.associate.AssociateBo;
 import com.subjects.votingservice.domain.exception.AssociateAlreadyRegisteredException;
 import com.subjects.votingservice.domain.exception.AssociateNotFoundException;
-import com.subjects.votingservice.mapping.AssociateMapper;
+import com.subjects.votingservice.domain.mapping.associate.AssociateMapper;
+import com.subjects.votingservice.domain.service.AssociateService;
 import com.subjects.votingservice.infrastructure.entities.Associate;
 import com.subjects.votingservice.infrastructure.repository.AssociateRepository;
-import com.subjects.votingservice.domain.service.AssociateService;
-import com.subjects.votingservice.api.dto.associate.AssociateRequestDto;
-import com.subjects.votingservice.api.dto.associate.AssociateResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -23,47 +22,41 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AssociateServiceImpl implements AssociateService {
 
-    private final AssociateRepository associateRepository;
     private final AssociateMapper associateMapper;
+    private final AssociateRepository associateRepository;
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public AssociateResponseDto save(AssociateRequestDto associateRequestDto) {
-        if (isCpfAlreadyRegistered(associateRequestDto.getCpf())) {
+    public AssociateBo save(AssociateBo associateBo) {
+        if (isCpfAlreadyRegistered(associateBo.getCpf())) {
             log.error("CPF already registered at database.");
             throw new AssociateAlreadyRegisteredException();
         }
-        log.info("Saving associate from associate request data transfer object {}", associateRequestDto);
-        final Associate associate = associateMapper.associateRequestDtoToAssociate(associateRequestDto);
-        final AssociateResponseDto associateResponseDto = associateMapper.associateToAssociateResponseDto(associateRepository.save(associate));
-        log.info("Associate {} was saved.", associate);
-        return associateResponseDto;
+        log.info("Saving associate from associate business object {}", associateBo);
+        final Associate associate = associateMapper.map(associateBo);
+        return associateMapper.map(associateRepository.save(associate));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public AssociateResponseDto findByCpf(String cpf) {
+    public AssociateBo findByCpf(String cpf) {
         log.info("Searching associate by cpf {}", cpf);
         final Associate associate = associateRepository.findOneByCpf(cpf).orElseThrow(AssociateNotFoundException::new);
-        final AssociateResponseDto associateResponseDto = associateMapper.associateToAssociateResponseDto(associate);
-        log.info("Associate {} was found.", associate);
-        return associateResponseDto;
+        return associateMapper.map(associate);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<AssociateResponseDto> findAll() {
+    public List<AssociateBo> findAll() {
         log.info("Retrieving all associates");
         final List<Associate> associates = associateRepository.findAll(Sort.by(Sort.Direction.ASC, "firstName", "lastName"));
-        final List<AssociateResponseDto> associateResponseDtoList = associateMapper.associatesToAssociateResponseDtoList(associates);
-        log.info("Number of associates retrieved: {}", associates.size());
-        return associateResponseDtoList;
+        return associateMapper.map(associates);
     }
 
     private boolean isCpfAlreadyRegistered(String cpf) {
