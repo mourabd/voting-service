@@ -2,12 +2,6 @@
 
 This service intends to provide a way for Sicredi associates voting on subjects thru REST API based solution. 
 
-### Application Documentation
-
-* [Swagger](http://localhost:8081/api/voting-service/swagger-ui.html) [Only when application is running]
-* [Technical Decisions](tech_decisions.md) [pt-BR]
-* [Service Description and Improvements](features_desc.md) [pt-BR]
-
 ### Application Requirements
 
 In order to run this application, make sure the following dependencies are configured in your local environment:
@@ -33,6 +27,11 @@ spring:
 userInfoService:
   url: https://user-info.herokuapp.com/users
 ```
+
+
+### Application Documentation
+
+* [Swagger](http://localhost:8081/api/voting-service/swagger-ui.html) [Only when application is running]
 
 ### Running the application (Windows OS)
 
@@ -69,12 +68,12 @@ Run the following command from [installed-kafka-version]\bin\windows folder if y
 kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic votingEventTopic
 ```
 
-### Application Libraries Documentation
+### Technical Decisions:
 
-For further reference, please consider the following sections:
-
-* [Official Gradle documentation](https://docs.gradle.org)
-* [Spring Boot Gradle Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/2.3.4.RELEASE/gradle-plugin/reference/html/)
-* [Spring Web](https://docs.spring.io/spring-boot/docs/2.3.4.RELEASE/reference/htmlsingle/#boot-features-developing-web-applications)
-* [Spring for Apache Kafka](https://docs.spring.io/spring-boot/docs/2.3.4.RELEASE/reference/htmlsingle/#boot-features-kafka)
-* [Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/2.3.4.RELEASE/reference/htmlsingle/#production-ready)
+* **Programming language:** Java
+* **Build automation tool:** [Gradle](https://docs.gradle.org)
+* **Unit tests:** [JUnit](https://junit.org/) and [mockito](https://site.mockito.org/)
+* **Quality check plugins:**
+    * [PMD](https://pmd.github.io/)
+    * [chekstyle](https://checkstyle.sourceforge.io/)
+    * [JaCoCo](https://www.eclemma.org/jacoco/)
