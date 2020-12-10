@@ -1,14 +1,14 @@
 package com.subjects.votingservice.configuration.handler;
 
-import com.subjects.votingservice.exception.AssociateAlreadyRegisteredException;
-import com.subjects.votingservice.exception.AssociateAlreadyVotedException;
-import com.subjects.votingservice.exception.AssociateUnableToVoteException;
-import com.subjects.votingservice.exception.InvalidDateTimeException;
-import com.subjects.votingservice.exception.NotFoundException;
-import com.subjects.votingservice.exception.SessionAlreadyOpenException;
-import com.subjects.votingservice.exception.SessionExpiredException;
-import com.subjects.votingservice.exception.SubjectCodeAlreadyRegisteredException;
-import com.subjects.votingservice.shared.dto.RestErrorResponseDto;
+import com.subjects.votingservice.domain.exception.AssociateAlreadyRegisteredException;
+import com.subjects.votingservice.domain.exception.AssociateAlreadyVotedException;
+import com.subjects.votingservice.domain.exception.AssociateUnableToVoteException;
+import com.subjects.votingservice.domain.exception.InvalidDateTimeException;
+import com.subjects.votingservice.domain.exception.NotFoundException;
+import com.subjects.votingservice.domain.exception.SessionAlreadyOpenException;
+import com.subjects.votingservice.domain.exception.SessionExpiredException;
+import com.subjects.votingservice.domain.exception.SubjectCodeAlreadyRegisteredException;
+import com.subjects.votingservice.api.dto.RestErrorResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

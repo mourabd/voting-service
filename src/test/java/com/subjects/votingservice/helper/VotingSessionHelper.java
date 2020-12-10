@@ -1,9 +1,9 @@
 package com.subjects.votingservice.helper;
 
-import com.subjects.votingservice.model.VotingSession;
-import com.subjects.votingservice.shared.dto.session.VotingSessionRequestDto;
-import com.subjects.votingservice.shared.dto.session.VotingSessionResponseDto;
-import com.subjects.votingservice.shared.dto.session.VotingSessionResultDto;
+import com.subjects.votingservice.infrastructure.entities.VotingSession;
+import com.subjects.votingservice.api.dto.session.VotingSessionRequestDto;
+import com.subjects.votingservice.api.dto.session.VotingSessionResponseDto;
+import com.subjects.votingservice.api.dto.session.VotingSessionResultDto;
 
 import java.time.LocalDateTime;
 

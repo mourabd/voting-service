@@ -1,8 +1,8 @@
 package com.subjects.votingservice.mapping;
 
-import com.subjects.votingservice.model.Associate;
-import com.subjects.votingservice.shared.dto.associate.AssociateRequestDto;
-import com.subjects.votingservice.shared.dto.associate.AssociateResponseDto;
+import com.subjects.votingservice.infrastructure.entities.Associate;
+import com.subjects.votingservice.api.dto.associate.AssociateRequestDto;
+import com.subjects.votingservice.api.dto.associate.AssociateResponseDto;
 import org.mapstruct.Mapper;
 
 import java.util.List;

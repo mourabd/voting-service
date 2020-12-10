@@ -1,8 +1,8 @@
 package com.subjects.votingservice.helper;
 
-import com.subjects.votingservice.model.Vote;
-import com.subjects.votingservice.shared.dto.vote.VoteRequestDto;
-import com.subjects.votingservice.shared.dto.vote.VoteResponseDto;
+import com.subjects.votingservice.infrastructure.entities.Vote;
+import com.subjects.votingservice.api.dto.vote.VoteRequestDto;
+import com.subjects.votingservice.api.dto.vote.VoteResponseDto;
 
 import static com.subjects.votingservice.helper.AssociateHelper.*;
 import static com.subjects.votingservice.helper.SubjectHelper.CODE;

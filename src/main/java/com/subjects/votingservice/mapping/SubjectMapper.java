@@ -1,7 +1,7 @@
 package com.subjects.votingservice.mapping;
 
-import com.subjects.votingservice.model.Subject;
-import com.subjects.votingservice.shared.dto.subject.SubjectDto;
+import com.subjects.votingservice.infrastructure.entities.Subject;
+import com.subjects.votingservice.api.dto.subject.SubjectDto;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;

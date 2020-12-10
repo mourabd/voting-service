@@ -1,7 +1,7 @@
 package com.subjects.votingservice.helper;
 
-import com.subjects.votingservice.model.Subject;
-import com.subjects.votingservice.shared.dto.subject.SubjectDto;
+import com.subjects.votingservice.infrastructure.entities.Subject;
+import com.subjects.votingservice.api.dto.subject.SubjectDto;
 
 /**
  * Subject helper class.

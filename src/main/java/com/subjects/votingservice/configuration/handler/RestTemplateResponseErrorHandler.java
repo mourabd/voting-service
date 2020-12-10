@@ -1,6 +1,6 @@
 package com.subjects.votingservice.configuration.handler;
 
-import com.subjects.votingservice.exception.AssociateUnableToVoteException;
+import com.subjects.votingservice.domain.exception.AssociateUnableToVoteException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;

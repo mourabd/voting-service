@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 /**
  * SpringBoot application class.
  */
-@EnableMongoRepositories(basePackages = "com.subjects.votingservice.repository")
+@EnableMongoRepositories(basePackages = "com.subjects.votingservice.infrastructure.repository")
 @SpringBootApplication
 public class VotingServiceApplication {
 

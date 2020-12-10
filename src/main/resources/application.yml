@@ -17,5 +17,5 @@ springdoc:
     path: /api/voting-service/swagger-ui.html
   api-docs:
     path: /swagger
-  packageToScan: com.subjects.votingservice.controller
+  packageToScan: com.subjects.votingservice.api.controller
   pathsToMatch: /api/voting-service/v1/**

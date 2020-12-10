@@ -1,9 +1,9 @@
 package com.subjects.votingservice.mapping;
 
-import com.subjects.votingservice.exception.InvalidDateTimeException;
-import com.subjects.votingservice.model.VotingSession;
-import com.subjects.votingservice.shared.dto.session.VotingSessionRequestDto;
-import com.subjects.votingservice.shared.dto.session.VotingSessionResponseDto;
+import com.subjects.votingservice.domain.exception.InvalidDateTimeException;
+import com.subjects.votingservice.infrastructure.entities.VotingSession;
+import com.subjects.votingservice.api.dto.session.VotingSessionRequestDto;
+import com.subjects.votingservice.api.dto.session.VotingSessionResponseDto;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

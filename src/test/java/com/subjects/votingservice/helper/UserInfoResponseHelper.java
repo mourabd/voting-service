@@ -1,6 +1,6 @@
 package com.subjects.votingservice.helper;
 
-import com.subjects.votingservice.integration.dto.UserInfoResponseDto;
+import com.subjects.votingservice.infrastructure.integration.dto.UserInfoResponseDto;
 
 /**
  * User info response data transfer object helper class.
